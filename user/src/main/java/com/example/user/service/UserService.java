@@ -26,7 +26,7 @@ public class UserService {
     return userRepository.findAll();
   }
 
-  public ResponseEntity<?> createUser(@Validated @RequestBody User newUser) {
+  public ResponseEntity<?> createUser(@Validated @RequestBody User newUser) { // сделать так, чтоб токен пеледавался в запросе
     String token = jwtService.getToken();
     ResponseEntity<Map> response = conflService.checkEmail(newUser.getEmail(), token);
 
