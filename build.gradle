@@ -1,0 +1,41 @@
+tasks.register("buildJwt") {
+    group = "1_cleanBuildAll"
+    description = "Clean and build JWT service"
+    dependsOn project(":jwt").tasks.clean
+    dependsOn project(":jwt").tasks.bootJar
+    project(":jwt").tasks.bootJar.mustRunAfter project(":jwt").tasks.clean
+}
+
+tasks.register("buildConfl") {
+    group = "1_cleanBuildAll"
+    description = "Clean and build Confl service"
+    dependsOn project(":confl").tasks.clean
+    dependsOn project(":confl").tasks.bootJar
+    project(":confl").tasks.bootJar.mustRunAfter project(":confl").tasks.clean
+}
+
+tasks.register("buildUser") {
+    group = "1_cleanBuildAll"
+    description = "Clean and build User service"
+    dependsOn project(":user").tasks.clean
+    dependsOn project(":user").tasks.bootJar
+    project(":user").tasks.bootJar.mustRunAfter project(":user").tasks.clean
+}
+
+tasks.register("buildAll") {
+    group = "1_cleanBuildAll"
+    description = "Clean and build all services"
+    dependsOn("buildJwt", "buildConfl", "buildUser")
+}
+
+tasks.register("dockerComposeUp", Exec) {
+    group = "2_dockerComposeUp"
+    description = "Start all services in docker-compose"
+    commandLine "docker", "compose", "up", "-d"
+}
+
+tasks.register("dockerComposeDown", Exec) {
+    group = "2_dockerComposeUp"
+    description = "Stop all services"
+    commandLine "docker", "compose", "down"
+}

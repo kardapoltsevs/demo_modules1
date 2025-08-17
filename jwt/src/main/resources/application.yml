@@ -1,0 +1,22 @@
+jwt:
+  secret: my-super-super-long-secret-key-that-is-at-least-32-bytes
+  expiration: 600000 # 10 минут
+
+server:
+  port: 8083
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+  health:
+    db:
+      enabled: false
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true

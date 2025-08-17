@@ -1,0 +1,35 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/confldb
+    username: postgres
+    password: 12345678
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+
+jwt:
+  secret: my-super-super-long-secret-key-that-is-at-least-32-bytes
+
+server:
+  port: 8082
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+  health:
+    db:
+      enabled: false
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true

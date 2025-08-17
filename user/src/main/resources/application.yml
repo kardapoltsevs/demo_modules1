@@ -1,0 +1,38 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/userdb
+    username: postgres
+    password: 12345678
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+
+confl:
+  url: http://localhost:8082
+
+jwt:
+  url: http://localhost:8083
+
+server:
+  port: 8081
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+  health:
+    db:
+      enabled: false
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
