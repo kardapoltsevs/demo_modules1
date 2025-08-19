@@ -8,16 +8,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 @Service
 public class UserService {
 
-  private final JwtService jwtService;
   private final ConflService conflService;
   private final UserRepository userRepository;
 
-  public UserService(JwtService jwtService, ConflService conflService, UserRepository userRepository) {
-    this.jwtService = jwtService;
+  public UserService(ConflService conflService, UserRepository userRepository) {
     this.conflService = conflService;
     this.userRepository = userRepository;
   }
@@ -26,15 +25,18 @@ public class UserService {
     return userRepository.findAll();
   }
 
-  public ResponseEntity<?> createUser(@Validated @RequestBody User newUser) { // сделать так, чтоб токен пеледавался в запросе
-    String token = jwtService.getToken();
+  public ResponseEntity<?> createUser(@Validated @RequestBody User newUser,
+                                      @RequestHeader("Authorization") String authHeader) {
+    // Извлекаем токен из заголовка Authorization (формат: "Bearer <token>")
+    String token = authHeader.substring(7); // Удаляем "Bearer " префикс
+
     ResponseEntity<Map> response = conflService.checkEmail(newUser.getEmail(), token);
 
     if (Boolean.TRUE.equals(response.getBody().get("available"))) {
       return ResponseEntity.ok(userRepository.save(newUser));
     } else {
       return ResponseEntity.unprocessableEntity()
-          .body("Такой email уже зарегистрирован");
+              .body("Такой email уже зарегистрирован");
     }
   }
 }
