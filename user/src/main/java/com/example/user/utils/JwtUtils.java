@@ -1,7 +1,9 @@
 package com.example.user.utils;
 
+import org.springframework.stereotype.Component;
+@Component
 public class JwtUtils {
-    private String extractToken(String authHeader) {
+    public String extractToken(String authHeader) {
         if (authHeader == null) {
             throw new IllegalArgumentException("Authorization header is required");
         }
