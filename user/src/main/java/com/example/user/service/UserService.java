@@ -23,19 +23,14 @@ public class UserService {
     this.userRepository = userRepository;
     this.jwtUtils = jwtUtils;
   }
-
   public List<User> getAllUsers() {
     return userRepository.findAll();
   }
 
   public ResponseEntity<?> createUser(@Validated @RequestBody User newUser,
                                       @RequestHeader("Authorization") String authHeader) {
-    // Извлекаем токен из заголовка Authorization (формат: "Bearer <token>")
-    //String token = authHeader.substring(7); // Удаляем "Bearer " префикс
     String token = jwtUtils.extractToken(authHeader);
-
     ResponseEntity<Map> response = conflService.checkEmail(newUser.getEmail(), token);
-
     if (Boolean.TRUE.equals(response.getBody().get("available"))) {
       return ResponseEntity.ok(userRepository.save(newUser));
     } else {
