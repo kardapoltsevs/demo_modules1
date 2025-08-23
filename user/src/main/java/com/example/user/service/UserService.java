@@ -4,6 +4,8 @@ import com.example.user.model.User;
 import com.example.user.repository.UserRepository;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -28,7 +30,11 @@ public class UserService {
   }
 
   public ResponseEntity<?> createUser(@Validated @RequestBody User newUser,
-                                      @RequestHeader("Authorization") String authHeader) {
+                                      @RequestHeader(value = "Authorization", required = false) String authHeader) {
+    if (authHeader == null || authHeader.isBlank()) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+              .body("Authorization header is required");
+    }
     String token = jwtUtils.extractToken(authHeader);
     ResponseEntity<Map> response = conflService.checkEmail(newUser.getEmail(), token);
     if (Boolean.TRUE.equals(response.getBody().get("available"))) {

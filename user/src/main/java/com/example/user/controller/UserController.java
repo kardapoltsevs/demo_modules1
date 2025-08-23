@@ -22,7 +22,7 @@ public class UserController {
   }
 
   @PostMapping("/create")
-  public ResponseEntity<?> addUser(@RequestBody User user, @RequestHeader("Authorization") String authHeader) {
+  public ResponseEntity<?> addUser(@RequestBody User user, @RequestHeader(value = "Authorization", required = false) String authHeader) {
     return userService.createUser(user, authHeader);
   }
 }
