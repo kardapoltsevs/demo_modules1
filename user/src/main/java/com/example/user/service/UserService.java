@@ -29,12 +29,8 @@ public class UserService {
     return userRepository.findAll();
   }
 
-  public ResponseEntity<?> createUser(@Validated @RequestBody User newUser,
-                                      @RequestHeader(value = "Authorization", required = false) String authHeader) {
-    if (authHeader == null || authHeader.isBlank()) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-              .body("Authorization header is required");
-    }
+  public ResponseEntity<?> createUser( @RequestBody User newUser,
+                                      @RequestHeader(value = "Authorization") String authHeader) {
     String token = jwtUtils.extractToken(authHeader);
     ResponseEntity<Map> response = conflService.checkEmail(newUser.getEmail(), token);
     if (Boolean.TRUE.equals(response.getBody().get("available"))) {
