@@ -29,8 +29,8 @@ public class UserService {
     return userRepository.findAll();
   }
 
-  public ResponseEntity<?> createUser( @RequestBody User newUser,
-                                      @RequestHeader(value = "Authorization") String authHeader) {
+  public ResponseEntity<?> createUser( @Validated @RequestBody User newUser,
+                                       String authHeader) {
     String token = jwtUtils.extractToken(authHeader);
     ResponseEntity<Map> response = conflService.checkEmail(newUser.getEmail(), token);
     if (Boolean.TRUE.equals(response.getBody().get("available"))) {
@@ -40,4 +40,4 @@ public class UserService {
               .body("Такой email уже зарегистрирован");
     }
   }
-}
+} //@RequestHeader(value = "Authorization")
