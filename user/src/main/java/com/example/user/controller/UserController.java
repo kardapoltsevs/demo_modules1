@@ -1,11 +1,13 @@
 package com.example.user.controller;
 
 import com.example.user.model.User;
+import com.example.user.model.UserRequest;
 import com.example.user.service.UserService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,7 +24,7 @@ public class UserController {
   }
 
   @PostMapping("/create")
-  public ResponseEntity<?> addUser(@RequestBody User user, @RequestHeader(value = "Authorization", required = false) String authHeader) {
-    return userService.createUser(user, authHeader);
+  public ResponseEntity<?> addUser(@Validated @RequestBody UserRequest userRequest, @RequestHeader(value = "Authorization") String authHeader) {
+    return userService.createUser(authHeader, userRequest);
   }
 }
