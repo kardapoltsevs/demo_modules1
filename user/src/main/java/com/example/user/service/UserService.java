@@ -52,4 +52,4 @@ public class UserService {
               .body("Такой email уже зарегистрирован");
     }
   }
-}
+} //@RequestHeader(value = "Authorization")

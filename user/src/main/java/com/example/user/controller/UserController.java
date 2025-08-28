@@ -26,5 +26,6 @@ public class UserController {
   @PostMapping("/create")
   public ResponseEntity<?> addUser(@Validated @RequestBody UserRequest userRequest, @RequestHeader(value = "Authorization") String authHeader) {
     return userService.createUser(authHeader, userRequest);
+
   }
 }
