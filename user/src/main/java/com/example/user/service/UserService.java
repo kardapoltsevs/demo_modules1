@@ -1,9 +1,8 @@
 package com.example.user.service;
 
 import com.example.user.model.User;
-import com.example.user.model.UserBody;
-import com.example.user.model.UserRequest;
-import com.example.user.model.UserResponse;
+import com.example.user.request.UserRequest;
+import com.example.user.response.UserResponse;
 import com.example.user.repository.UserRepository;
 import java.util.List;
 import java.util.Map;
@@ -14,20 +13,17 @@ import org.springframework.stereotype.Service;
 import com.example.user.utils.JwtUtils;
 
 @Service
-@Builder
 public class UserService {
 
   private final ConflService conflService;
   private final UserRepository userRepository;
   private final JwtUtils jwtUtils;
-  private final UserBody newUser;
   private final UserRequest userRequest;
 
-  public UserService(ConflService conflService, UserRepository userRepository, JwtUtils jwtUtils, UserBody newUser, UserRequest userRequest) {
+  public UserService(ConflService conflService, UserRepository userRepository, JwtUtils jwtUtils, UserRequest userRequest) {
     this.conflService = conflService;
     this.userRepository = userRepository;
     this.jwtUtils = jwtUtils;
-    this.newUser = newUser;
     this.userRequest = userRequest;
   }
   public List<User> getAllUsers() {

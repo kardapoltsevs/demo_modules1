@@ -1,7 +1,7 @@
 package com.example.user.controller;
 
 import com.example.user.model.User;
-import com.example.user.model.UserRequest;
+import com.example.user.request.UserRequest;
 import com.example.user.service.UserService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

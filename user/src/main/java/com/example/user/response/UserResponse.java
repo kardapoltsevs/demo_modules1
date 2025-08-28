@@ -1,4 +1,4 @@
-package com.example.user.model;
+package com.example.user.response;
 
 import lombok.*;
 import org.springframework.stereotype.Component;
