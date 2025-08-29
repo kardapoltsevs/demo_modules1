@@ -8,6 +8,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -32,7 +33,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     String token = authHeader.substring(7);
     try {
-      SecretKey key = Keys.hmacShaKeyFor(secret.getBytes());
+      SecretKey key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
       Claims claims = Jwts.parserBuilder()
           .setSigningKey(key)
           .build()
