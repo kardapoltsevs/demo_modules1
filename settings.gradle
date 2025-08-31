@@ -1,4 +1,4 @@
-rootProject.name = 'demo_modules'
+rootProject.name = 'demo_modules12'
 include 'user'
 include 'confl'
 include 'jwt'
