@@ -26,6 +26,18 @@ public class UserServiceTest {
 
     @Test
     public void getAllUsers_shouldReturnListOfUsers() {
+        List<User> expectedUsers = Arrays.asList(
+                User.builder().email("test1@example.com").name("User1").build(),
+                User.builder().email("test2@example.com").name("User2").build()
+        );
+        when(userRepository.findAll()).thenReturn(expectedUsers);
+
+        // Act
+        List<User> result = userService.getAllUsers();
+
+        // Assert
+        assertEquals(expectedUsers, result);
+        verify(userRepository).findAll();
 
     }
 
