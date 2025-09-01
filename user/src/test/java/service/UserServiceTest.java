@@ -2,13 +2,20 @@ package service;
 
 import com.example.user.model.User;
 import com.example.user.repository.UserRepository;
+import com.example.user.request.UserRequest;
+import com.example.user.response.UserResponse;
+import com.example.user.service.ConflService;
 import com.example.user.service.UserService;
+import com.example.user.utils.JwtUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
+import java.util.Map;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,6 +46,54 @@ public class UserServiceTest {
         assertEquals(expectedUsers, result);
         verify(userRepository).findAll();
 
+    }
+
+
+    @Mock
+    private ConflService conflService;
+    @Mock
+    private JwtUtils jwtUtils;
+    @Mock
+    private UserRequest userRequest;
+
+    @Test
+    void createUser_WhenEmailAvailable_ShouldReturnUserResponse() {
+        // Arrange
+        String authHeader = "Bearer token123";
+        String email = "test@example.com";
+        String name = "Test User";
+        String token = "token123";
+
+        UserRequest userRequest = new UserRequest();
+        userRequest.setEmail(email);
+        userRequest.setName(name);
+
+        User savedUser = User.builder()
+                .email(email)
+                .name(name)
+                .build();
+
+        Map<String, Object> responseBody = Map.of("available", true);
+        ResponseEntity<Map> responseEntity = new ResponseEntity<>(responseBody, HttpStatus.OK);
+        when(jwtUtils.extractToken(authHeader)).thenReturn(token);
+        when(conflService.checkEmail(email, token)).thenReturn(responseEntity);
+        when(userRepository.save(any(User.class))).thenReturn(savedUser);
+
+        // Act
+        ResponseEntity<?> result = userService.createUser(authHeader, userRequest);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertTrue(result.getBody() instanceof UserResponse);
+
+        UserResponse userResponse = (UserResponse) result.getBody();
+        assertEquals(email, userResponse.getEmail());
+        assertEquals(name, userResponse.getName());
+
+        verify(jwtUtils).extractToken(authHeader);
+        verify(conflService).checkEmail(email, token);
+        verify(userRepository).save(any(User.class));
     }
 
     //простой тест для проверки
