@@ -95,6 +95,35 @@ public class UserServiceTest {
         verify(conflService).checkEmail(email, token);
         verify(userRepository).save(any(User.class));
     }
+    @Test
+    void createUser_WhenEmailNotAvailable_ShouldReturnUnprocessableEntity() {
+        // Arrange
+        String authHeader = "Bearer token123";
+        String email = "existing@example.com";
+        String name = "Existing User";
+        String token = "token123";
+
+        UserRequest userRequest = new UserRequest();
+        userRequest.setEmail(email);
+        userRequest.setName(name);
+
+        Map<String, Object> responseBody = Map.of("available", false);
+        ResponseEntity<Map> responseEntity = new ResponseEntity<>(responseBody, HttpStatus.OK);
+
+        when(jwtUtils.extractToken(authHeader)).thenReturn(token);
+        when(conflService.checkEmail(email, token)).thenReturn(responseEntity);
+        // Act
+        ResponseEntity<?> result = userService.createUser(authHeader, userRequest);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, result.getStatusCode());
+        assertEquals("Такой email уже зарегистрирован", result.getBody());
+
+        verify(jwtUtils).extractToken(authHeader);
+        verify(conflService).checkEmail(email, token);
+        verify(userRepository, never()).save(any(User.class));
+    }
 
     //простой тест для проверки
     @Test
