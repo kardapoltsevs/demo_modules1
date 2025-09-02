@@ -15,19 +15,23 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Map;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
-
+    @Mock
+    private ConflService conflService;
+    @Mock
+    private JwtUtils jwtUtils;
+    @Mock
+    private UserRequest userRequest;
     @Mock
     private UserRepository userRepository;
-
     @InjectMocks
     private UserService userService;
 
@@ -47,14 +51,6 @@ public class UserServiceTest {
         verify(userRepository).findAll();
 
     }
-
-
-    @Mock
-    private ConflService conflService;
-    @Mock
-    private JwtUtils jwtUtils;
-    @Mock
-    private UserRequest userRequest;
 
     @Test
     void createUser_WhenEmailAvailable_ShouldReturnUserResponse() {
@@ -95,6 +91,7 @@ public class UserServiceTest {
         verify(conflService).checkEmail(email, token);
         verify(userRepository).save(any(User.class));
     }
+
     @Test
     void createUser_WhenEmailNotAvailable_ShouldReturnUnprocessableEntity() {
         // Arrange
@@ -123,11 +120,5 @@ public class UserServiceTest {
         verify(jwtUtils).extractToken(authHeader);
         verify(conflService).checkEmail(email, token);
         verify(userRepository, never()).save(any(User.class));
-    }
-
-    //простой тест для проверки
-    @Test
-    void simpleTest() {
-        assertTrue(true, "Простой тест должен проходить");
     }
 }

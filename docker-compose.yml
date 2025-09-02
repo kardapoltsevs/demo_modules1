@@ -14,7 +14,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./db-init:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -36,14 +36,14 @@ services:
       - postgres
       - confl-service
       - jwt-service
-# TODO: починить хелсчеки
-#    depends_on:
-#      postgres:
-#        condition: service_healthy
-#      confl-service:
-#        condition: service_healthy
-#      jwt-service:
-#        condition: service_healthy
+    # TODO: починить хелсчеки
+    #    depends_on:
+    #      postgres:
+    #        condition: service_healthy
+    #      confl-service:
+    #        condition: service_healthy
+    #      jwt-service:
+    #        condition: service_healthy
     networks:
       - app-network
 
