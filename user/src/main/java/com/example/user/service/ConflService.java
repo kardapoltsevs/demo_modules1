@@ -14,6 +14,7 @@ public class ConflService {
 
     private final RestTemplate restTemplate;
     @Value("${confl.url}")
+    public
     String conflUrl;
 
     public ConflService(RestTemplate restTemplate) {
