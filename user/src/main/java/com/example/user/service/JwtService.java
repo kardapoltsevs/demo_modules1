@@ -9,6 +9,7 @@ public class JwtService {
 
     private final RestTemplate restTemplate;
     @Value("${jwt.url}")
+    public
     String jwtUrl;
 
     public JwtService(RestTemplate restTemplate) {
