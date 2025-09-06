@@ -1,55 +1,55 @@
 package com.example.user.service;
 
 import com.example.user.model.User;
+import com.example.user.repository.UserRepository;
 import com.example.user.request.UserRequest;
 import com.example.user.response.UserResponse;
-import com.example.user.repository.UserRepository;
-import java.util.List;
-import java.util.Map;
-
-import lombok.Builder;
+import com.example.user.utils.JwtUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import com.example.user.utils.JwtUtils;
+
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class UserService {
 
-  private final ConflService conflService;
-  private final UserRepository userRepository;
-  private final JwtUtils jwtUtils;
-  private final UserRequest userRequest;
+    private final ConflService conflService;
+    private final UserRepository userRepository;
+    private final JwtUtils jwtUtils;
+    private final UserRequest userRequest;
 
-  public UserService(ConflService conflService, UserRepository userRepository, JwtUtils jwtUtils, UserRequest userRequest) {
-    this.conflService = conflService;
-    this.userRepository = userRepository;
-    this.jwtUtils = jwtUtils;
-    this.userRequest = userRequest;
-  }
-  public List<User> getAllUsers() {
-    return userRepository.findAll();
-  }
-
-  public ResponseEntity<?> createUser( String authHeader, UserRequest userRequest) {
-    String token = jwtUtils.extractToken(authHeader);
-    ResponseEntity<Map> response = conflService.checkEmail(userRequest.getEmail(), token);
-
-    if (Boolean.TRUE.equals(response.getBody().get("available"))) {
-      User savedUser = userRepository.save(
-              User.builder()
-                      .email(userRequest.getEmail())
-                      .name(userRequest.getName())
-                      .build()
-      );
-      return ResponseEntity.ok(
-              UserResponse.builder()
-                      .email(savedUser.getEmail())
-                      .name(savedUser.getName())
-                      .build()
-      );
-    } else {
-      return ResponseEntity.unprocessableEntity()
-              .body("Такой email уже зарегистрирован");
+    public UserService(ConflService conflService, UserRepository userRepository, JwtUtils jwtUtils, UserRequest userRequest) {
+        this.conflService = conflService;
+        this.userRepository = userRepository;
+        this.jwtUtils = jwtUtils;
+        this.userRequest = userRequest;
     }
-  }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public ResponseEntity<?> createUser(String authHeader, UserRequest userRequest) {
+        String token = jwtUtils.extractToken(authHeader);
+        ResponseEntity<Map> response = conflService.checkEmail(userRequest.getEmail(), token);
+
+        if (Boolean.TRUE.equals(response.getBody().get("available"))) {
+            User savedUser = userRepository.save(
+                    User.builder()
+                            .email(userRequest.getEmail())
+                            .name(userRequest.getName())
+                            .build()
+            );
+            return ResponseEntity.ok(
+                    UserResponse.builder()
+                            .email(savedUser.getEmail())
+                            .name(savedUser.getName())
+                            .build()
+            );
+        } else {
+            return ResponseEntity.unprocessableEntity()
+                    .body("Такой email уже зарегистрирован");
+        }
+    }
 }
