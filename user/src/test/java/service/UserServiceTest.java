@@ -43,18 +43,15 @@ public class UserServiceTest {
         );
         when(userRepository.findAll()).thenReturn(expectedUsers);
 
-        // Act
         List<User> result = userService.getAllUsers();
 
-        // Assert
         assertEquals(expectedUsers, result);
         verify(userRepository).findAll();
-
     }
 
     @Test
     void createUser_WhenEmailAvailable_ShouldReturnUserResponse() {
-        // Arrange
+
         String authHeader = "Bearer token123";
         String email = "test@example.com";
         String name = "Test User";
@@ -75,10 +72,8 @@ public class UserServiceTest {
         when(conflService.checkEmail(email, token)).thenReturn(responseEntity);
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
 
-        // Act
         ResponseEntity<?> result = userService.createUser(authHeader, userRequest);
 
-        // Assert
         assertNotNull(result);
         assertEquals(HttpStatus.OK, result.getStatusCode());
         assertTrue(result.getBody() instanceof UserResponse);
@@ -94,7 +89,6 @@ public class UserServiceTest {
 
     @Test
     void createUser_WhenEmailNotAvailable_ShouldReturnUnprocessableEntity() {
-        // Arrange
         String authHeader = "Bearer token123";
         String email = "existing@example.com";
         String name = "Existing User";
@@ -109,10 +103,9 @@ public class UserServiceTest {
 
         when(jwtUtils.extractToken(authHeader)).thenReturn(token);
         when(conflService.checkEmail(email, token)).thenReturn(responseEntity);
-        // Act
+
         ResponseEntity<?> result = userService.createUser(authHeader, userRequest);
 
-        // Assert
         assertNotNull(result);
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, result.getStatusCode());
         assertEquals("Такой email уже зарегистрирован", result.getBody());

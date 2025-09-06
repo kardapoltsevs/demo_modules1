@@ -34,7 +34,7 @@ public class ConflServiceTest {
 
     @Test
     void checkEmail_ShouldMakeCorrectApiCall() {
-        // Arrange
+
         HttpHeaders expectedHeaders = new HttpHeaders();
         expectedHeaders.setBearerAuth(testToken);
         HttpEntity<Void> expectedRequest = new HttpEntity<>(expectedHeaders);
@@ -48,10 +48,8 @@ public class ConflServiceTest {
                 eq(Map.class)
         )).thenReturn(expectedResponse);
 
-        // Act
         ResponseEntity<Map> actualResponse = conflService.checkEmail(testEmail, testToken);
 
-        // Assert
         assertNotNull(actualResponse);
         assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
         assertTrue((Boolean) actualResponse.getBody().get("valid"));

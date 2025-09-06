@@ -24,30 +24,27 @@ public class JwtServiceTest {
 
     @Test
     void getToken_ShouldReturnToken_WhenRequestIsSuccessful() {
-        // Arrange
+
         String expectedToken = "test-jwt-token";
         jwtService.jwtUrl = "http://auth-service";
 
         when(restTemplate.getForObject("http://auth-service/token", String.class))
                 .thenReturn(expectedToken);
 
-        // Act
         String actualToken = jwtService.getToken();
 
-        // Assert
         assertEquals(expectedToken, actualToken);
         verify(restTemplate).getForObject("http://auth-service/token", String.class);
     }
 
     @Test
     void getToken_ShouldThrowException_WhenRestTemplateFails() {
-        // Arrange
+
         jwtService.jwtUrl = "http://auth-service";
 
         when(restTemplate.getForObject("http://auth-service/token", String.class))
                 .thenThrow(new RestClientException("Connection failed"));
 
-        // Act & Assert
         assertThrows(RestClientException.class, () -> jwtService.getToken());
     }
 }
