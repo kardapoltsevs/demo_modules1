@@ -1,6 +1,7 @@
 package service;
 
 import com.example.user.service.JwtService;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,6 +24,7 @@ public class JwtServiceTest {
     private JwtService jwtService;
 
     @Test
+    @Tag("positive")
     void getToken_ShouldReturnToken_WhenRequestIsSuccessful() {
 
         String expectedToken = "test-jwt-token";
@@ -38,6 +40,7 @@ public class JwtServiceTest {
     }
 
     @Test
+    @Tag("negative")
     void getToken_ShouldThrowException_WhenRestTemplateFails() {
 
         jwtService.jwtUrl = "http://auth-service";
