@@ -7,6 +7,7 @@ import com.example.user.response.UserResponse;
 import com.example.user.service.ConflService;
 import com.example.user.service.UserService;
 import com.example.user.utils.JwtUtils;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,6 +37,7 @@ public class UserServiceTest {
     private UserService userService;
 
     @Test
+    @Tag("positive")
     public void getAllUsers_shouldReturnListOfUsers() {
         List<User> expectedUsers = Arrays.asList(
                 User.builder().email("test1@example.com").name("User1").build(),
@@ -50,6 +52,7 @@ public class UserServiceTest {
     }
 
     @Test
+    @Tag("positive")
     void createUser_WhenEmailAvailable_ShouldReturnUserResponse() {
 
         String authHeader = "Bearer token123";
@@ -88,6 +91,7 @@ public class UserServiceTest {
     }
 
     @Test
+    @Tag("negative")
     void createUser_WhenEmailNotAvailable_ShouldReturnUnprocessableEntity() {
         String authHeader = "Bearer token123";
         String email = "existing@example.com";

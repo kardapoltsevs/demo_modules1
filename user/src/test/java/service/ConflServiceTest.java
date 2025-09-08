@@ -2,6 +2,7 @@ package service;
 
 import com.example.user.service.ConflService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -33,6 +34,7 @@ public class ConflServiceTest {
     }
 
     @Test
+    @Tag("positive")
     void checkEmail_ShouldMakeCorrectApiCall() {
 
         HttpHeaders expectedHeaders = new HttpHeaders();
@@ -65,8 +67,9 @@ public class ConflServiceTest {
     }
 
     @Test
+    @Tag("negative")
     void checkEmail_ShouldHandleDifferentEmail() {
-        // Arrange
+
         String differentEmail = "different@example.com";
         ResponseEntity<Map> expectedResponse = new ResponseEntity<>(Map.of("valid", false), HttpStatus.OK);
 
@@ -77,18 +80,17 @@ public class ConflServiceTest {
                 eq(Map.class)
         )).thenReturn(expectedResponse);
 
-        // Act
         ResponseEntity<Map> actualResponse = conflService.checkEmail(differentEmail, testToken);
 
-        // Assert
         assertNotNull(actualResponse);
         assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
         assertFalse((Boolean) actualResponse.getBody().get("valid"));
     }
 
     @Test
+    @Tag("negative")
     void checkEmail_ShouldHandleDifferentHttpStatus() {
-        // Arrange
+
         ResponseEntity<Map> expectedResponse = new ResponseEntity<>(Map.of("error", "Not found"), HttpStatus.NOT_FOUND);
 
         when(restTemplate.exchange(
@@ -98,18 +100,17 @@ public class ConflServiceTest {
                 eq(Map.class)
         )).thenReturn(expectedResponse);
 
-        // Act
         ResponseEntity<Map> actualResponse = conflService.checkEmail(testEmail, testToken);
 
-        // Assert
         assertNotNull(actualResponse);
         assertEquals(HttpStatus.NOT_FOUND, actualResponse.getStatusCode());
         assertEquals("Not found", actualResponse.getBody().get("error"));
     }
 
     @Test
+    @Tag("negative")
     void checkEmail_ShouldHandleEmptyResponse() {
-        // Arrange
+
         ResponseEntity<Map> expectedResponse = new ResponseEntity<>(Map.of(), HttpStatus.OK);
 
         when(restTemplate.exchange(
@@ -119,10 +120,8 @@ public class ConflServiceTest {
                 eq(Map.class)
         )).thenReturn(expectedResponse);
 
-        // Act
         ResponseEntity<Map> actualResponse = conflService.checkEmail(testEmail, testToken);
 
-        // Assert
         assertNotNull(actualResponse);
         assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
         assertTrue(actualResponse.getBody().isEmpty());
@@ -130,8 +129,9 @@ public class ConflServiceTest {
 
 
     @Test
+    @Tag("negative")
     void checkEmail_ShouldHandleRestClientException() {
-        // Arrange
+
         when(restTemplate.exchange(
                 anyString(),
                 any(),
@@ -139,7 +139,6 @@ public class ConflServiceTest {
                 eq(Map.class)
         )).thenThrow(new org.springframework.web.client.RestClientException("Connection failed"));
 
-        // Act & Assert
         assertThrows(org.springframework.web.client.RestClientException.class, () -> {
             conflService.checkEmail(testEmail, testToken);
         });
