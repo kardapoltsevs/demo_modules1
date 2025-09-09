@@ -33,10 +33,9 @@ public class TokenControllerTest {
     @Test
     @Tag("positive")
     void getToken_ShouldReturnValidJwtToken() {
-        // Act
+
         String token = tokenController.getToken();
 
-        // Assert
         assertNotNull(token);
         assertFalse(token.isEmpty());
         assertTrue(token.split("\\.").length == 3); // JWT has 3 parts
@@ -45,28 +44,25 @@ public class TokenControllerTest {
     @Test
     @Tag("positive")
     void getToken_ShouldContainCorrectSubject() {
-        // Act
+
         String token = tokenController.getToken();
 
-        // Parse the token to verify subject
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(testSecret.getBytes())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
 
-        // Assert
         assertEquals("user", claims.getSubject(), "Token should have subject 'user'");
     }
 
     @Test
     @Tag("positive")
     void getToken_ShouldSetCorrectExpiration() {
-        // Act
+
         String token = tokenController.getToken();
         long currentTime = System.currentTimeMillis();
 
-        // Parse the token to verify expiration
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(testSecret.getBytes())
                 .build()
@@ -76,7 +72,6 @@ public class TokenControllerTest {
         Date expiration = claims.getExpiration();
         long expectedExpirationTime = currentTime + testExpiration;
 
-        // Assert - allow 2 seconds tolerance for execution time
         assertTrue(Math.abs(expiration.getTime() - expectedExpirationTime) < 2000,
                 "Expiration time should be approximately " + testExpiration + " ms from now");
     }
@@ -84,11 +79,10 @@ public class TokenControllerTest {
     @Test
     @Tag("positive")
     void getToken_ShouldSetIssuedAtToCurrentTime() {
-        // Act
+
         String token = tokenController.getToken();
         long currentTime = System.currentTimeMillis();
 
-        // Parse the token to verify issued at time
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(testSecret.getBytes())
                 .build()
@@ -97,7 +91,6 @@ public class TokenControllerTest {
 
         Date issuedAt = claims.getIssuedAt();
 
-        // Assert - allow 2 seconds tolerance for execution time
         assertTrue(Math.abs(issuedAt.getTime() - currentTime) < 2000,
                 "Issued at time should be approximately current time");
     }
@@ -105,10 +98,9 @@ public class TokenControllerTest {
     @Test
     @Tag("positive")
     void getToken_ShouldBeSignedWithHS256() {
-        // Act
+
         String token = tokenController.getToken();
 
-        // If we can parse it with our secret, it means it was signed correctly
         assertDoesNotThrow(() -> {
             Jwts.parserBuilder()
                     .setSigningKey(testSecret.getBytes())
@@ -120,10 +112,9 @@ public class TokenControllerTest {
     @Test
     @Tag("negative")
     void getToken_WithEmptySecret_ShouldThrowException() {
-        // Arrange
+
         ReflectionTestUtils.setField(tokenController, "secret", "");
 
-        // Act & Assert
         Exception exception = assertThrows(Exception.class, () -> {
             tokenController.getToken();
         }, "Should throw exception for empty secret key");
