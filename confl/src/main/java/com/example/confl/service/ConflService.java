@@ -47,12 +47,7 @@ public class ConflService {
     private boolean isValidToken(String token) {
         String key = TOKEN_KEY_PREFIX + token;
 
-        // Проверяем существование токена в Redis
         Boolean exists = redisTemplate.hasKey(key);
-
-        // Или альтернативный вариант с получением значения
-        // String tokenValue = stringRedisTemplate.opsForValue().get(key);
-        // return tokenValue != null && tokenValue.equals("valid");
 
         return exists != null && exists;
     }
@@ -61,7 +56,6 @@ public class ConflService {
         redisTemplate.delete(key);
     }
 
-    // Дополнительные методы для работы с токенами
     public void saveToken(String token, long expirationTimeInSeconds) {
         String key = TOKEN_KEY_PREFIX + token;
         redisTemplate.opsForValue().set(key, "valid", expirationTimeInSeconds, TimeUnit.SECONDS);
