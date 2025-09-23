@@ -2,11 +2,10 @@ package com.example.confl.controller;
 
 import com.example.confl.model.Email;
 import com.example.confl.service.ConflService;
+import com.example.confl.exception.InvalidTokenException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -27,8 +26,14 @@ public class ConflController {
     }
 
     @GetMapping("/email/check")
-    public ResponseEntity<?> checkEmail(@RequestParam String email) {
-        boolean available = conflService.isEmailAvailable(email);
-        return ResponseEntity.ok().body(Map.of("available", available));
+    public ResponseEntity<?> checkEmail(@RequestParam String email,
+                                        @RequestHeader("X-Auth-Token") String token) {
+        try {
+            boolean available = conflService.isEmailAvailable(email, token);
+            return ResponseEntity.ok().body(Map.of("available", available));
+        } catch (InvalidTokenException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
 }
