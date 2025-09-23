@@ -21,7 +21,6 @@ public class Email {
     private long id;
     private String email;
     private String token;
-
     private LocalDateTime createdAt;
 
 }
