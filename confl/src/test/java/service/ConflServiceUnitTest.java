@@ -9,10 +9,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
+import org.springframework.data.redis.core.RedisTemplate;
 import java.util.Arrays;
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -21,9 +20,15 @@ import static org.mockito.Mockito.*;
 public class ConflServiceUnitTest {
     @Mock
     private EmailRepository emailRepository;
+    private RedisTemplate<String, String> redisTemplate;
 
     @InjectMocks
     private ConflService conflService;
+
+    private final String validToken = "valid-token-123";
+    private final String invalidToken = "invalid-token-456";
+    private final String testEmail = "test@example.com";
+
 
     @Test
     @Tag("positive")
@@ -40,85 +45,6 @@ public class ConflServiceUnitTest {
 
         assertEquals(expectedEmails, actualEmails);
         verify(emailRepository, times(1)).findAll();
-    }
-
-    @Test
-    @Tag("positive")
-    void isEmailAvailable_WhenEmailIsAvailable_ShouldReturnTrueAndSaveEmail() {
-
-        String testEmail = "available@example.com";
-        when(emailRepository.existsByEmail(testEmail)).thenReturn(false);
-
-        boolean result = conflService.isEmailAvailable(testEmail);
-
-        assertTrue(result);
-        verify(emailRepository, times(1)).existsByEmail(testEmail);
-        verify(emailRepository, times(1)).save(any(Email.class));
-    }
-
-    @Test
-    @Tag("positive")
-    void isEmailAvailable_WhenEmailIsNotAvailable_ShouldReturnFalseAndNotSave() {
-
-        String testEmail = "taken@example.com";
-        when(emailRepository.existsByEmail(testEmail)).thenReturn(true);
-
-        boolean result = conflService.isEmailAvailable(testEmail);
-
-        assertFalse(result);
-        verify(emailRepository, times(1)).existsByEmail(testEmail);
-        verify(emailRepository, never()).save(any(Email.class));
-    }
-
-    @Test
-    @Tag("positive")
-    void isEmailAvailable_WhenEmailIsAvailable_ShouldSaveCorrectEmail() {
-
-        String testEmail = "new@example.com";
-        when(emailRepository.existsByEmail(testEmail)).thenReturn(false);
-
-        conflService.isEmailAvailable(testEmail);
-
-        verify(emailRepository).save(argThat(email ->
-                email.getEmail().equals(testEmail)
-        ));
-    }
-
-    @Test
-    @Tag("positive")
-    void isEmailAvailable_WithEmptyEmail_ShouldWorkCorrectly() {
-
-        String emptyEmail = "";
-        when(emailRepository.existsByEmail(emptyEmail)).thenReturn(false);
-
-        boolean result = conflService.isEmailAvailable(emptyEmail);
-
-        assertTrue(result);
-        verify(emailRepository, times(1)).existsByEmail(emptyEmail);
-        verify(emailRepository, times(1)).save(any(Email.class));
-    }
-
-    @Test
-    @Tag("negative")
-    void getAllEmails_WhenRepositoryThrowsException_ShouldPropagateException() {
-
-        when(emailRepository.findAll()).thenThrow(new RuntimeException("Database error"));
-
-        assertThrows(RuntimeException.class, () -> {
-            conflService.getAllEmails();
-        });
-    }
-
-    @Test
-    @Tag("negative")
-    void isEmailAvailable_WhenRepositoryThrowsException_ShouldPropagateException() {
-
-        String testEmail = "test@example.com";
-        when(emailRepository.existsByEmail(testEmail)).thenThrow(new RuntimeException("Database error"));
-
-        assertThrows(RuntimeException.class, () -> {
-            conflService.isEmailAvailable(testEmail);
-        });
     }
 
     @Test

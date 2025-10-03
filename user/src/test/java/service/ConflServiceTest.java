@@ -32,7 +32,6 @@ public class ConflServiceTest {
         conflService = new ConflService(restTemplate);
         conflService.conflUrl = testUrl;
     }
-
     @Test
     @Tag("positive")
     void checkEmail_ShouldMakeCorrectApiCall() {
@@ -65,7 +64,6 @@ public class ConflServiceTest {
                 eq(Map.class)
         );
     }
-
     @Test
     @Tag("negative")
     void checkEmail_ShouldHandleDifferentEmail() {
@@ -86,7 +84,6 @@ public class ConflServiceTest {
         assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
         assertFalse((Boolean) actualResponse.getBody().get("valid"));
     }
-
     @Test
     @Tag("negative")
     void checkEmail_ShouldHandleDifferentHttpStatus() {
@@ -106,7 +103,6 @@ public class ConflServiceTest {
         assertEquals(HttpStatus.NOT_FOUND, actualResponse.getStatusCode());
         assertEquals("Not found", actualResponse.getBody().get("error"));
     }
-
     @Test
     @Tag("negative")
     void checkEmail_ShouldHandleEmptyResponse() {
@@ -126,8 +122,6 @@ public class ConflServiceTest {
         assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
         assertTrue(actualResponse.getBody().isEmpty());
     }
-
-
     @Test
     @Tag("negative")
     void checkEmail_ShouldHandleRestClientException() {

@@ -1,4 +1,5 @@
 rootProject.name = 'demo_modules'
+include 'redis'
 include 'user'
 include 'confl'
 include 'jwt'
