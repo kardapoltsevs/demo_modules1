@@ -78,6 +78,14 @@ services:
     networks:
       - app-network
 
+  redis-service:
+    build:
+      context: ./redis
+      dockerfile: Dockerfile
+    container_name: redis-service
+    ports:
+      - "6379:8084"
+
 networks:
   app-network:
     driver: bridge

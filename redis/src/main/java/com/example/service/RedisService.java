@@ -19,4 +19,13 @@ public class RedisService {
         return Boolean.TRUE.equals(redisTemplate.hasKey(key));
     }
     // перенести из confl/RedisService
+    public void cacheEmail(String email) {
+        String key = EMAIL_KEY_PREFIX + email.toLowerCase();
+        redisTemplate.opsForValue().set(key, "exist", EMAIL_CACHE_TTL, TimeUnit.SECONDS);
+    }
+    public void removeEmailFromCache(String email) {
+        String key = EMAIL_KEY_PREFIX + email.toLowerCase();
+        redisTemplate.delete(key);
+    }
+
 }
