@@ -2,6 +2,18 @@ version: "3.9"
 
 services:
 
+  redis:
+    image: redis:7-alpine
+    container_name: jwt-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - app-network
+
+
   postgres:
     image: postgres:15
     container_name: postgres
@@ -78,13 +90,6 @@ services:
     networks:
       - app-network
 
-  redis-service:
-    build:
-      context: ./redis
-      dockerfile: Dockerfile
-    container_name: redis-service
-    ports:
-      - "6379:8084"
 
 networks:
   app-network:
@@ -92,3 +97,4 @@ networks:
 
 volumes:
   postgres_data:
+  redis_data:

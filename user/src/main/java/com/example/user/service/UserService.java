@@ -5,6 +5,7 @@ import com.example.user.repository.UserRepository;
 import com.example.user.request.UserRequest;
 import com.example.user.response.UserResponse;
 import com.example.user.utils.JwtUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -14,42 +15,62 @@ import java.util.Map;
 @Service
 public class UserService {
 
-    private final ConflService conflService;
     private final UserRepository userRepository;
-    private final JwtUtils jwtUtils;
-    private final UserRequest userRequest;
+    private final JwtService jwtService;
+    private final ConflService conflService;
+    private final RedisTemplate<String, Object> redisTemplate;
 
-    public UserService(ConflService conflService, UserRepository userRepository, JwtUtils jwtUtils, UserRequest userRequest) {
-        this.conflService = conflService;
+    public UserService(UserRepository userRepository, JwtService jwtService,
+                       ConflService conflServiceClient, RedisTemplate<String, Object> redisTemplate) {
         this.userRepository = userRepository;
-        this.jwtUtils = jwtUtils;
-        this.userRequest = userRequest;
+        this.jwtService = jwtService;
+        this.conflService = conflServiceClient;
+        this.redisTemplate = redisTemplate;
     }
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    public ResponseEntity<?> createUser(String authHeader, UserRequest userRequest) {
-        String token = jwtUtils.extractToken(authHeader);
-        ResponseEntity<Map> response = conflService.checkEmail(userRequest.getEmail(), token);
-
-        if (Boolean.TRUE.equals(response.getBody().get("available"))) {
-            User savedUser = userRepository.save(
-                    User.builder()
-                            .email(userRequest.getEmail())
-                            .name(userRequest.getName())
-                            .build()
-            );
-            return ResponseEntity.ok(
-                    UserResponse.builder()
-                            .email(savedUser.getEmail())
-                            .name(savedUser.getName())
-                            .build()
-            );
-        } else {
-            return ResponseEntity.unprocessableEntity()
-                    .body("Такой email уже зарегистрирован");
+    public User authenticate(String token, String username, String email) {
+        // Проверяем токен через JWT сервис (который использует Redis)
+        if (!jwtService.validateToken(token, email)) {
+            throw new SecurityException("Invalid token");
         }
+
+        // Проверяем в модуле confl
+        ConflResponse conflResponse = conflServiceClient.checkEmail(token, email);
+
+        if ("available".equals(conflResponse.getStatus())) {
+            // Создаем нового пользователя
+            User newUser = new User();
+            newUser.setUsername(username);
+            newUser.setEmail(email);
+            newUser.setToken(token);
+
+            User savedUser = userRepository.save(newUser);
+
+            // Кешируем информацию о пользователе
+            cacheUserInfo(savedUser);
+
+            return savedUser;
+        }
+
+        throw new RuntimeException("Email not available or user already exists");
+    }
+
+    @Cacheable(value = "users", key = "#email")
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+    private void cacheUserInfo(User user) {
+        String userKey = "user:" + user.getEmail();
+        redisTemplate.opsForValue().set(userKey, user, Duration.ofHours(1));
+    }
+
+    @CacheEvict(value = "users", key = "#email")
+    public void logout(String email) {
+        jwtService.invalidateToken(email);
     }
 }

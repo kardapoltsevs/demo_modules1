@@ -20,3 +20,12 @@ management:
       enabled: true
     readinessstate:
       enabled: true
+  redis:
+    host: redis
+    port: 6379
+    timeout: 2000ms
+    cache:
+      type: redis
+      redis:
+        time-to-live: 3600000
+        cache-null-values: false

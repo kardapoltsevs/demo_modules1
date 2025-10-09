@@ -8,6 +8,8 @@ import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.stereotype.Service;
+
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -16,68 +18,36 @@ import java.util.concurrent.TimeUnit;
 @AllArgsConstructor
 public class ConflService {
 
-    private final EmailRepository emailRepository;
-    private final RedisTemplate<String, String> redisTemplate;
+    private final ConflRepository conflRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
 
-    private static final String TOKEN_KEY_PREFIX = "token:";
-
-    public List<Email> getAllEmails() {
-        return emailRepository.findAll();
+    public ConflService(ConflRepository conflRepository, RedisTemplate<String, Object> redisTemplate) {
+        this.conflRepository = conflRepository;
+        this.redisTemplate = redisTemplate;
     }
 
-    public boolean isEmailAvailable(String email, String token) {
-        if (!isValidToken(token)) {
-            throw new InvalidTokenException("Неверный или просроченный токен");
-        }
-        boolean isAvailable = !emailRepository.existsByEmail(email);
+    public ConflResponse checkEmail(String token, String email) {
+        String cacheKey = "confl:email:" + email;
 
-        if (isAvailable) {
-            Email newEmail = Email.builder()
-                    .email(email)
-                    .createdAt(LocalDateTime.now())
-                    .build();
-
-            emailRepository.save(newEmail);
-            deleteToken(token);
+        // Проверяем в кеше
+        ConflResponse cachedResponse = (ConflResponse) redisTemplate.opsForValue().get(cacheKey);
+        if (cachedResponse != null) {
+            return cachedResponse;
         }
 
-        return isAvailable;
-    }
-    private boolean isValidToken(String token) {
-        String key = TOKEN_KEY_PREFIX + token;
+        // Проверяем в базе данных
+        boolean emailExists = conflRepository.existsByEmail(email);
+        ConflResponse response = new ConflResponse();
 
-        Boolean exists = redisTemplate.hasKey(key);
+        if (!emailExists) {
+            response.setStatus("available");
+        } else {
+            response.setStatus("exists");
+        }
+        // Кешируем результат на 30 минут
+        redisTemplate.opsForValue().set(cacheKey, response, Duration.ofMinutes(30));
 
-        return exists != null && exists;
-    }
-    private void deleteToken(String token) {
-        String key = TOKEN_KEY_PREFIX + token;
-        redisTemplate.delete(key);
-    }
-
-    public void saveToken(String token, long expirationTimeInSeconds) {
-        String key = TOKEN_KEY_PREFIX + token;
-        redisTemplate.opsForValue().set(key, "valid", expirationTimeInSeconds, TimeUnit.SECONDS);
-    }
-    public boolean validateAndUseToken(String token) {
-        String key = TOKEN_KEY_PREFIX + token;
-
-        // Используем транзакцию для атомарной проверки и удаления
-        return Boolean.TRUE.equals(redisTemplate.execute(new SessionCallback<Boolean>() {
-            @Override
-            public Boolean execute(RedisOperations operations) {
-                operations.watch(key);
-
-                if (operations.hasKey(key)) {
-                    operations.multi();
-                    operations.delete(key);
-                    return operations.exec() != null;
-                }
-
-                operations.unwatch();
-                return false;
-            }
-        }));
+        return response;
     }
 }
 
