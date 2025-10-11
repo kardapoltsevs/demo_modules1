@@ -1,17 +1,18 @@
-package org.example.jwt.cervice;
+package org.example.jwt.service;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-
+import org.example.jwt.util.JwtUtil;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
 import java.time.Duration;
 
 @Service
 public class JwtService {
-
+    private static final String TOKEN_PREFIX = "jwt:token:";
+    private static final Duration TOKEN_TTL = Duration.ofHours(1);
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String, Object> redisTemplate;
-    private static final String TOKEN_PREFIX = "jwt:";
-    private static final Duration TOKEN_TTL = Duration.ofHours(1);
 
     public JwtService(JwtUtil jwtUtil, RedisTemplate<String, Object> redisTemplate) {
         this.jwtUtil = jwtUtil;
@@ -49,7 +50,7 @@ public class JwtService {
         redisTemplate.delete(redisKey);
     }
 
-    public String getEmailFromToken(String token) {
-        return jwtUtil.extractEmail(token);
-    }
+    //public String getEmailFromToken(String token) {
+    //    return jwtUtil.extractEmail(token);
+    //}
 }

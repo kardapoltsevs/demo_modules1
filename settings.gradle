@@ -3,4 +3,5 @@ include 'redis'
 include 'user'
 include 'confl'
 include 'jwt'
+include 'common-dto'
 

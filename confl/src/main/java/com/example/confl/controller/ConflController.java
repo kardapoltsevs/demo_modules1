@@ -20,7 +20,7 @@ public class ConflController {
     }
 
     @GetMapping
-    public List<Email> getAllEmails() {
+    public List<String> getAllEmails() {
         return conflService.getAllEmails();
     }
 

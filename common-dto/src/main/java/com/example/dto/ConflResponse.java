@@ -1,4 +1,6 @@
-package main.java.com.example.dto;
+package com.example.dto;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ConflResponse {
     @JsonProperty("status")

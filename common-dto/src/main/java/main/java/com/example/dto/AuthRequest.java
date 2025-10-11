@@ -1,5 +1,7 @@
 package main.java.com.example.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class AuthRequest {
     @JsonProperty("token")
     private String token;

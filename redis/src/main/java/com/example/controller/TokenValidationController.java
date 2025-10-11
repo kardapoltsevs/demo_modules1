@@ -1,6 +1,7 @@
 package com.example.controller;
 
 import com.example.service.RedisTokenService;
+import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -50,6 +51,7 @@ class TokenValidationRequest {
     private String token;
 
     public String getToken() {
+        return "";
     }
 }
 

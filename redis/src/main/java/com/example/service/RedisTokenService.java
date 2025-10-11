@@ -1,8 +1,10 @@
 package com.example.service;
 
 import com.example.model.TokenInfo;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 public class RedisTokenService {
     private final RedisTemplate<String, Object> redisTemplate;
